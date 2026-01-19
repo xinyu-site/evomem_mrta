@@ -1,0 +1,31 @@
+In a two-dimensional XY Cartesian coordinate system, there are 3 robots and 3 tasks. The tasks need to be allocated to the robots over 4 discrete time steps. At each time step, each robot can be assigned to only one task, and each task must be assigned to one robot. Each task has a designated time window for assignment, specified by an EarliestStep and a LatestStep. These values define the range of valid time steps within which the task can be performed. If a task's EarliestStep exceeds its LatestStep, the time window should be adjusted to ensure that it is valid.
+
+In this example:
+- The positions of the robots are:
+  - Robot 1: [1.0, 1.0]
+  - Robot 2: [2.0, 3.0]
+  - Robot 3: [3.0, 1.0]
+
+- The positions of the tasks are:
+  - Task 1: [0.0, 1.0]
+  - Task 2: [3.0, 3.0]
+  - Task 3: [4.0, 1.0]
+
+- The EarliestStep for each task are:
+  - Task 1: 0
+  - Task 2: 1
+  - Task 3: 1
+
+- The LatestStep for each task are:
+  - Task 1: 1
+  - Task 2: 2
+  - Task 3: 3
+
+The task assignment must occur within the specified time windows, meaning:
+- Task 1 can only be assigned during time steps 0 and 1.
+- Task 2 can only be assigned during time steps 1 and 2.
+- Task 3 can only be assigned during time steps 1, 2, and 3.
+
+The objective is to minimize the total Euclidean distance traveled by the robots while completing their tasks. The total distance traveled is calculated based on the positions of the robots and tasks at each time step, considering the constraints on time windows. 
+
+For this setup, the minimal total distance traveled by the robots while completing their assigned tasks is 3.0.

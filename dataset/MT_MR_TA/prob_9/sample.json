@@ -1,0 +1,30 @@
+[
+  {
+    "input": {
+      "RobotPositions": [
+        [0.0, 4.0],
+        [1.0, 3.0],
+        [2.0, 0.0]
+      ],
+      "TaskPositions": [
+        [0.0, 3.0],
+        [2.0, 1.0],
+        [2.0, 2.0],
+        [1.0, 4.0],
+        [2.0, 3.0],
+        [2.0, 4.0]
+      ],
+      "EarliestStep": [0, 0, 1, 0, 0, 1],
+      "LatestStep": [1, 3, 3, 3, 2, 3],
+      "NumRobots": 3,
+      "NumTasks": 6,
+      "TimeSteps": 4,
+      "TaskRequirements": [2, 1, 1, 2, 1, 1]
+    },
+    "output": [
+      8.8
+    ]
+  }
+]
+    
+  

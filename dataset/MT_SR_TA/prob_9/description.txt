@@ -1,0 +1,3 @@
+In a two-dimensional XY Cartesian coordinate system, there are 2 robots and 3 tasks. The robots are at positions [0.0, 0.0] and [2.0, 0.0], while the tasks are located at [0.0, 1.0], [2.0, 1.0], and [2.0, 2.0]. The goal is to assign the tasks to the robots over 4 discrete time steps. Each robot can perform only one task at a time, and each task requires exactly one robot per time step.
+
+The tasks are assigned within their respective time windows, with Task 0 assigned between time steps 0 and 1, Task 1 between time steps 1 and 2, and Task 2 between time steps 2 and 3. The objective is to minimize the total Euclidean distance traveled by the robots while completing their tasks. The minimal total distance is 3.0.

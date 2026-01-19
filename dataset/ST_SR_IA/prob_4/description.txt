@@ -1,0 +1,13 @@
+In a two-dimensional environment with an XY Cartesian coordinate system, there are two types of entities: Robots and Tasks. The goal is to pair each Robot with a Task such that the total Euclidean distance between all pairs is minimized. Each Robot must be paired with one Task, and each Task must be paired with one Robot. The objective is to minimize the sum of Euclidean distances between the assigned Robots and Tasks. Assignments are instantaneous, with no future planning considered.
+
+For this example, there are 3 Robots and 3 Tasks. The positions of the Robots are as follows:
+- Robot 1: [1.0, 1.0]
+- Robot 2: [2.0, 3.0]
+- Robot 3: [3.0, 1.0]
+
+The positions of the Tasks are as follows:
+- Task 1: [0.0, 1.0]
+- Task 2: [3.0, 3.0]
+- Task 3: [4.0, 1.0]
+
+The objective is to assign each Robot to a Task in a way that minimizes the total Euclidean distance between the Robots and Tasks. The minimal total distance for this setup is 3.

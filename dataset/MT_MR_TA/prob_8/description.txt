@@ -1,0 +1,5 @@
+In a two-dimensional XY Cartesian coordinate system, 3 robots and 3 tasks are defined. The robots' positions are [0.0, 4.0], [1.0, 3.0], and [2.0, 0.0]. The tasks are located at [0.0, 3.0], [2.0, 1.0], and [2.0, 2.0]. These tasks must be assigned to the robots over 4 time steps. Robots can handle multiple tasks simultaneously, but each robot can only manage one task at any time step. Task 0 requires 2 robots (MR), and Task 1 and Task 2 each require 1 robot.
+
+Key Constraints: 1. Each task must be assigned to the required number of robots within its valid time window (EarliestStep, LatestStep). 2. Each robot can handle only one task at any given time step. 
+
+Each task must be assigned to the required number of robots within its time window, defined by EarliestStep and LatestStep. Task 0 can be assigned from time step 0 to 1, Task 1 can be assigned from time step 0 to 2, and Task 2 can be assigned from time step 1 to 2. The optimal task assignment, which minimizes the total Euclidean distance, results in a total distance of 4.0.

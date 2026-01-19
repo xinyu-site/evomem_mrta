@@ -1,0 +1,3 @@
+In a two-dimensional XY Cartesian coordinate system, 3 robots are positioned at [0.0, 4.0], [1.0, 3.0], and [2.0, 1.0]. The tasks are located at [0.0, 3.0], [2.0, 0.0], and [2.0, 0.0]. Task 0 requires 2 robots, while Tasks 1 and 2 each require 1 robot.
+
+The objective is to assign robots to tasks such that the total Euclidean distance is minimized. Each task must be assigned to the specified number of robots, as indicated in the TaskRequirements, and each robot can perform multiple tasks simultaneously. The assignment must minimize the sum of Euclidean distances for the robot-task pairs. The optimal solution is [[0, 1], [2], [2]], which results in a minimized total distance.

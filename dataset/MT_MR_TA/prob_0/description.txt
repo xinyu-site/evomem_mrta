@@ -1,0 +1,5 @@
+In a two-dimensional XY Cartesian coordinate system, there are 3 robots and 3 tasks. The robots are located at positions [0.0, 4.0], [1.0, 3.0], and [2.0, 0.0]. The tasks are placed at [0.0, 3.0], [2.0, 1.0], and [2.0, 2.0]. Each robot can handle multiple tasks simultaneously (MT), but only one task at a time per time step. Task 0 requires 2 robots simultaneously (MR), while Task 1 and Task 2 each require 1 robot.
+
+Key Constraints: 1. Each task must be assigned to the required number of robots within its valid time window (EarliestStep, LatestStep). 2. Each robot can handle only one task at any given time step. 
+
+The tasks must be assigned within their respective time windows, with Task 0 valid from time step 0 to 1, Task 1 from time step 0 to 2, and Task 2 from time step 1 to 2. The objective is to minimize the total Euclidean distance traveled by the robots while completing their tasks. In this case, the minimal total distance is 4.0.

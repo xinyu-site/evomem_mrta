@@ -1,0 +1,79 @@
+### Extracted Variables, Constraints, and Objectives
+
+#### **Variables**:
+1. **Assignment Variables**:
+   - Let \( x_{i,j,t} \) be a binary variable where:
+     - \( i \in \{0, 1, 2\} \) represents the robot index.
+     - \( j \in \{0, 1, 2\} \) represents the task index.
+     - \( t \in \{0, 1, 2, 3\} \) represents the time step.
+     - \( x_{i,j,t} = 1 \) if robot \( i \) is assigned to task \( j \) at time step \( t \), and \( 0 \) otherwise.
+
+2. **Position Variables**:
+   - Let \( (p_{i,t}^x, p_{i,t}^y) \) represent the coordinates of robot \( i \) at time step \( t \).
+   - Initial positions of robots are given:
+     - Robot 0: \( (p_{0,0}^x, p_{0,0}^y) = (0.0, 4.0) \)
+     - Robot 1: \( (p_{1,0}^x, p_{1,0}^y) = (1.0, 3.0) \)
+     - Robot 2: \( (p_{2,0}^x, p_{2,0}^y) = (2.0, 0.0) \)
+
+3. **Task Location Variables**:
+   - Task locations are fixed:
+     - Task 0: \( (q_0^x, q_0^y) = (0.0, 3.0) \)
+     - Task 1: \( (q_1^x, q_1^y) = (2.0, 1.0) \)
+     - Task 2: \( (q_2^x, q_2^y) = (2.0, 2.0) \)
+
+4. **Distance Variables**:
+   - Let \( d_{i,j,t} \) represent the Euclidean distance traveled by robot \( i \) to reach task \( j \) at time step \( t \), calculated as:
+     \[
+     d_{i,j,t} = \sqrt{(p_{i,t}^x - q_j^x)^2 + (p_{i,t}^y - q_j^y)^2}
+     \]
+   - For linearization (if needed), auxiliary variables can be introduced to handle the quadratic terms.
+
+#### **Constraints**:
+1. **Task Assignment Constraints**:
+   - Each task must be assigned to the required number of robots at each time step within its time window:
+     - Task 0 (\( j=0 \)) requires 2 robots: \( \sum_{i=0}^2 x_{i,0,t} = 2 \quad \forall t \in \{0, 1\} \)
+     - Task 1 (\( j=1 \)) requires 1 robot: \( \sum_{i=0}^2 x_{i,1,t} = 1 \quad \forall t \in \{0, 1, 2\} \)
+     - Task 2 (\( j=2 \)) requires 1 robot: \( \sum_{i=0}^2 x_{i,2,t} = 1 \quad \forall t \in \{1, 2\} \)
+
+2. **Robot Capacity Constraints**:
+   - Each robot can handle at most one task per time step:
+     \[
+     \sum_{j=0}^2 x_{i,j,t} \leq 1 \quad \forall i, \forall t
+     \]
+
+3. **Time Window Constraints**:
+   - A task \( j \) cannot be assigned outside its time window:
+     - Task 0 (\( j=0 \)): \( x_{i,0,t} = 0 \quad \forall i, \forall t \notin \{0, 1\} \)
+     - Task 1 (\( j=1 \)): \( x_{i,1,t} = 0 \quad \forall i, \forall t \notin \{0, 1, 2\} \)
+     - Task 2 (\( j=2 \)): \( x_{i,2,t} = 0 \quad \forall i, \forall t \notin \{1, 2\} \)
+
+4. **Movement Constraints**:
+   - If a robot is assigned to a task at time \( t \), its position at \( t \) must match the task's location:
+     \[
+     p_{i,t}^x = \sum_{j=0}^2 x_{i,j,t} \cdot q_j^x \quad \forall i, \forall t
+     \]
+     \[
+     p_{i,t}^y = \sum_{j=0}^2 x_{i,j,t} \cdot q_j^y \quad \forall i, \forall t
+     \]
+   - If a robot is not assigned to any task at time \( t \), its position remains unchanged from the previous time step:
+     \[
+     p_{i,t}^x = p_{i,t-1}^x \quad \text{if} \quad \sum_{j=0}^2 x_{i,j,t} = 0 \quad \forall i, \forall t \geq 1
+     \]
+     \[
+     p_{i,t}^y = p_{i,t-1}^y \quad \text{if} \quad \sum_{j=0}^2 x_{i,j,t} = 0 \quad \forall i, \forall t \geq 1
+     \]
+
+5. **Initial Position Constraints**:
+   - Initial positions are fixed as given above.
+
+#### **Objective**:
+- Minimize the total Euclidean distance traveled by all robots:
+  \[
+  \text{Minimize} \quad \sum_{i=0}^2 \sum_{j=0}^2 \sum_{t=0}^3 x_{i,j,t} \cdot d_{i,j,t}
+  \]
+  - If distances are precomputed, \( d_{i,j,t} \) can be constants; otherwise, include the distance calculation in the model.
+
+### Notes:
+- The Euclidean distance \( d_{i,j,t} \) is nonlinear. For a linear model, you may approximate it using Manhattan distance or linearize the quadratic terms.
+- Ensure all constraints use only \( \geq \), \( \leq \), or \( = \) operators.
+- The minimal total distance is given as 4.0, which can be used to validate the model.

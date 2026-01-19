@@ -1,0 +1,10 @@
+In a two-dimensional environment, there are 3 robots and 3 tasks. The positions of the robots are as follows: Robot 0 at [0.0, 4.0], Robot 1 at [1.0, 3.0], and Robot 2 at [2.0, 1.0]. The positions of the tasks are: Task 0 at [0.0, 3.0], Task 1 at [2.0, 0.0], and Task 2 at [2.0, 0.0]. Each task may require multiple robots, and each robot can perform multiple tasks. The assignment occurs instantaneously, with no future planning. Task 0 requires 2 robots, while Tasks 1 and 2 each require 1 robot. 
+
+The goal is to assign robots to tasks such that the total Euclidean distance is minimized. Each task must be assigned the specific number of robots as defined in the task requirements: Task 0 requires 2 robots, Task 1 requires 1 robot, and Task 2 also requires 1 robot. Robots can be assigned to multiple tasks simultaneously, and there is no restriction on the number of tasks a robot can handle at the same time. The objective is to minimize the sum of Euclidean distances for robots assigned to each task. 
+
+For this example, the task assignments are as follows:
+- Task 0 is assigned to Robot 0 and Robot 1.
+- Task 1 is assigned to Robot 2.
+- Task 2 is also assigned to Robot 2.
+
+The output indicates the task assignments in the order of the tasks: [[0, 1], [2], [2]].

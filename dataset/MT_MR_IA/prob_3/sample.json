@@ -1,0 +1,22 @@
+[
+    {
+        "input": {
+            "RobotPositions": [
+                [0.0, 4.0],
+                [1.0, 3.0],
+                [2.0, 1.0]
+            ],
+            "TaskPositions": [
+                [0.0, 3.0],
+                [2.0, 0.0],
+                [2.0, 0.0]
+            ],
+            "TaskRequirements": [2, 1, 1],
+            "NumRobots": 3,
+            "NumTasks": 3
+        },
+        "output": [
+            [[0, 1], [2], [2]]
+        ]
+    }
+]

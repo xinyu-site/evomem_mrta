@@ -1,0 +1,5 @@
+In a two-dimensional environment using an XY Cartesian coordinate system, there are three Robots and two Tasks. Each Robot can be assigned only one Task at a time (Single-Task Robot, ST), while some Tasks may require multiple Robots simultaneously (Multi-Robot Task, MR). The assignments for each Task span several time steps (Time-Extended Assignment, TA) within the task's allowable time window. The objective is to minimize the total Euclidean distance traveled by the Robots to complete their assigned Tasks.
+
+For proper modeling, the following two constraints need to be considered: 1. Each Task must be assigned to the exact number of Robots it requires within the specified time window. 2. Each Robot can handle only one Task at any given time step.
+
+Tasks must be completed within a single time step, adhering to their specified earliest and latest start times. The code should return the minimized value of the total Euclidean distance traveled by the Robots while completing their Tasks.

@@ -1,0 +1,5 @@
+In a two-dimensional environment with an XY Cartesian coordinate system, there are 3 robots and 3 tasks. The positions of the robots are [0.0, 4.0], [1.0, 3.0], and [2.0, 0.0]. The tasks are located at [0.0, 3.0], [2.0, 1.0], and [2.0, 2.0]. The goal is to assign the tasks to the robots over 4 discrete time steps. Each robot can perform multiple tasks simultaneously (MT), but can only handle one task at a time. Some tasks require multiple robots at the same time (MR), meaning that Task 0 requires 2 robots, and Task 1 and Task 2 each require 1 robot.
+
+Tasks must be assigned within their valid time windows, defined by the EarliestStep and LatestStep for each task. For this example, Task 0 can be assigned between time steps 0 and 1, Task 1 between time steps 0 and 2, and Task 2 between time steps 1 and 2. The objective is to minimize the total Euclidean distance traveled by the robots while completing their tasks, with each robot assigned to a task in a way that minimizes the overall travel distance.
+
+The optimal task assignment for this setup is [0, 1, 1], resulting in a minimal total travel distance of 4.0.
