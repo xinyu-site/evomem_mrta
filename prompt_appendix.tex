@@ -1,0 +1,252 @@
+\appendix
+\section{Prompt Templates}
+\label{app:prompt_templates}
+
+This appendix summarizes the prompt templates used in EMERGE. Following the
+style of the reference appendix, each template is denoted by \texttt{Ps} and is
+grouped by its role in the memory-augmented multi-agent optimization pipeline.
+Dynamic fields are written in braces, e.g., \texttt{\{problem\_description\}}.
+
+% Required packages in the paper preamble:
+% \usepackage{xcolor}
+% \usepackage{listings}
+\lstdefinestyle{promptstyle}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=fullflexible,
+  frame=single,
+  rulecolor=\color{black!25},
+  backgroundcolor=\color{black!2},
+  xleftmargin=0.5em,
+  xrightmargin=0.5em
+}
+
+\subsection{Task Classification and Memory Retrieval}
+
+\subsubsection{Prompt Template of MRTA Category Selection}
+\label{app:ps_selector}
+
+The prompt template in MRTA category selection: \textbf{Ps1}
+\begin{lstlisting}[style=promptstyle]
+You are a classifier that categorizes task descriptions according to the following three rules, and directly outputs one of the 8 corresponding classes (ST_SR_IA, ST_MR_IA, MT_SR_IA, MT_MR_IA, ST_SR_TA, ST_MR_TA, MT_SR_TA, MT_MR_TA):
+Classification Rules:
+1. ST/MT: Determine whether single robot execute multiple tasks. If yes, output MT; otherwise, output ST.
+2. SR/MR: Determine whether there are any tasks that require multiple robots to collaborate for completion. If yes, output MR; otherwise, output SR.
+3. IA/TA: Determine whether task planning considers timesteps. If yes, output TA; otherwise, output IA.
+Class Explanation (combined in order):
+- First part: ST (Single Task) or MT (Multi-Task)
+- Second part: SR (Single Robot) or MR (Multi-Robot)
+- Third part: IA (Instantaneous Assignment) or TA (Time-Extended Assignment)
+Carefully read the task description, apply the three rules in sequence, and then output only the final class name without any additional text.
+
+Task Description:
+{problem_description}
+\end{lstlisting}
+
+\subsubsection{Prompt Template of Memory Summary Evolution}
+\label{app:ps_evolver}
+
+The prompt template in memory summary evolution: \textbf{Ps2}
+\begin{lstlisting}[style=promptstyle]
+You are an experienced work review expert, proficient in summarization, comparison, and iterative writing. Your core capability is: by comparing old summary and new summary, extracting effective patterns, preserving the essence, and integrating new insights to generate a more mature and more instructive iterative version of the work summary.
+
+You will receive two inputs:
+
+1-{current_summary}
+2-{original_summary}
+
+Your Task: Revise and upgrade the Original Work Summary by integrating the new insights and lessons from the Current Work Problem and Current Work Summary.
+Output Rules:
+1-Output only the final, revised summary text. No explanations.
+2-Preserve the original's core structure, successful conclusions, and its overall tone/style.
+\end{lstlisting}
+
+\subsection{Multi-Agent Solver Prompts}
+
+\subsubsection{Prompt Template of Parser}
+\label{app:ps_parser}
+
+The prompt template for the Parser agent \(P_{\mathrm{Par}}\): \textbf{Ps3}
+\begin{lstlisting}[style=promptstyle]
+You are an expert in identifying and extracting key decision variables from the problem description to support accurate modeling.
+As the Parser, your task is to analyze the problem description and extract relevant variables, constraints, and objectives.
+Use your domain expertise to ensure these elements are accurately defined and suitable for formulating a solvable LP or MIP model.
+Specifically, ensure constraints use only <=, >=, or = operators (avoid > or <).
+
+{example_context}
+
+Review the problem description
+{problem_description}
+and the comments from other experts
+{comments_text}
+then provide the extracted variables, constraints, and objectives along with their definitions.
+\end{lstlisting}
+
+When retrieved demonstrations are available, \texttt{\{example\_context\}} is
+instantiated by one of the following two templates.
+\begin{lstlisting}[style=promptstyle]
+this is the specific example : {example_str}
+\end{lstlisting}
+
+\begin{lstlisting}[style=promptstyle]
+If the following information describes a successful summary or unsuccessful analysis, you may refer to it for context.: {example_str}
+\end{lstlisting}
+
+The example string used by this stage follows the format below.
+\begin{lstlisting}[style=promptstyle]
+To guide your work, study the following examples carefully. Each example demonstrates the complete thought process from problem description to structured extraction:
+---
+### EXAMPLE {i} ###
+Problem Description:
+{example_problem}
+Example Output:
+{example_output}
+
+---
+***End of Examples***
+\end{lstlisting}
+
+\subsubsection{Prompt Template of Modeler}
+\label{app:ps_modeler}
+
+The prompt template for the Modeler agent \(P_{\mathrm{Mod}}\): \textbf{Ps4}
+\begin{lstlisting}[style=promptstyle]
+You are a modeling expert in Operations Research and Optimization, specializing in Mixed-Integer Programming (MIP). Your task is to construct a mathematical optimization model based on the problem description and insights provided by other reasoning stages. Leverage your expertise to formulate the optimization objectives and constraints, ensuring the model is comprehensive and suitable for solving the given production challenge. Please integrate all inputs and provide a well-defined model that aligns with operational research principles.
+
+Now the origin problem is as follow:
+{problem_description}
+And the comments from other reasoning stages are as follow:
+{comments_text}
+
+Give your MIP model of this problem. Additionally, please note that your model needs to be a solvable linear programming model or a mixed-integer programming model. This also means that the expressions of the constraint conditions can only be equal to, greater than or equal to, or less than or equal to (> or < are not allowed to appear and should be replaced to be \geq or \leq).
+
+Your output format should be a JSON like this:
+{
+    "VARIABLES": "A mathematical description about variables",
+    "CONSTRAINTS": "A mathematical description about constraints",
+    "OBJECTIVE": "A mathematical description about objective"
+}
+\end{lstlisting}
+
+\subsubsection{Prompt Template of Developer}
+\label{app:ps_developer}
+
+The prompt template for the Developer agent \(P_{\mathrm{Dev}}\): \textbf{Ps5}
+\begin{lstlisting}[style=promptstyle]
+You are a Python programmer specializing in operations research and optimization, with expertise in implementing and solving mathematical problems using Gurobi. Your main responsibility is to write, debug, and optimize code that transforms given optimization formulations into executable solutions using Gurobi. Ensure your implementation aligns with the problem objectives and constraints, and deliver clean, efficient, and well-documented code. While Gurobi is your primary tool, knowledge of related libraries such as NumPy, SciPy, or PuLP can support additional functionality or preprocessing tasks. Your goal is to provide robust, solver-ready code that effectively addresses the optimization problem.
+As the Developer, your core task is to translate the parsed task information and mathematical formulation into executable solver code.
+Crucially, you MUST ensure all constraints are expressed using only the operators <=, >=, or =; the use of strict inequalities (> or <) is prohibited for linear programming formulations.
+
+{example_str}
+
+Analyze the problem step by step based on the provided description
+{problem_description}
+and the comments from other reasoning stages
+{comments_text}.
+Using the starter code template {code_example} write a Python function that strictly follows the given format and defines a solvable linear programming (LP) or mixed-integer programming (MIP) model.
+Include only the necessary import statements and ensure no external test code is provided. Deliver clean, efficient, and well-structured code that aligns with the problem requirements.
+\end{lstlisting}
+
+When retrieved code demonstrations are used, \texttt{\{example\_str\}} is
+instantiated as follows.
+\begin{lstlisting}[style=promptstyle]
+To guide your work, study the following examples carefully. Each example demonstrates the complete thought process from problem description to structured extraction:
+---
+### EXAMPLE {i} ###
+Problem Description:
+{example_problem}
+Example Code Implementation:
+{example_code}
+
+---
+***End of Examples***
+\end{lstlisting}
+
+\subsection{Memory Construction and Diagnosis Prompts}
+
+\subsubsection{Prompt Template of Successful Case Summarization}
+\label{app:ps_success_summary}
+
+The prompt template in successful case summarization: \textbf{Ps6}
+\begin{lstlisting}[style=promptstyle]
+You are an efficient Model Refinement Expert, skilled at condensing complex optimization models into their core essentials.
+
+Review the following problem and model. Briefly summarize the problem description, optimization variables, constraints, objective function, and Precautions (1-3 sentences each).
+this is the original problem: {problem_description}
+this is the model file: {identify_text}
+
+Output Constraints:
+One-Sentence Principle: Each item (Variables, Constraints, Objective) must be expressed in exactly one sentence.
+Professional Language: Use general mathematical terminology (e.g., binary variables, linear constraints, etc.) where appropriate, but do not use any mathematical formulas.
+Minimalist Format: Do not include any redundant explanations. Output the concise summary directly using the following structure:
+[Problem Summary]: [Insert summary here]
+[Optimization Variables]: [Insert summary here]
+[Optimization Constraints]: [Insert summary here]
+[Optimization Objective]: [Insert summary here]
+[Precautions]: [insert precautions here]
+\end{lstlisting}
+
+\subsubsection{Prompt Template of Failed Case Diagnosis}
+\label{app:ps_failure_diagnosis}
+
+The prompt template in failed case diagnosis: \textbf{Ps7}
+\begin{lstlisting}[style=promptstyle]
+You are an efficient Model Diagnosis Expert, skilled at quickly identifying core logical errors in optimization models.
+
+Please analyze the following original problem and a model known to be incorrect. Your task is to directly and concisely explain why this modeling approach is wrong.
+this is the original problem: {problem_description}
+this is the model file: {identify_text}
+
+Output Requirements:
+Focus on the Root Cause: Analyze the fundamental logical error or key assumption bias in the modeling, not surface-level or syntax issues.
+Fixed Structure: Use only the following structure for your output, with no introductory summary.
+Concise Language: Explain each part in 1-2 sentences.
+Output Structure (Strictly Follow):
+[Error Cause Analysis]
+[Core Error]: [State the most fundamental error in 1-2 sentences]
+[Specific Analysis]: [Briefly explain the contradiction between the model logic and the problem requirements]
+[Potential Consequences]: [The typical result of such an error, e.g., meaningless solution, infeasible model, etc.]
+\end{lstlisting}
+
+\subsection{Baseline Prompt Templates}
+
+\subsubsection{Prompt Template of Direct Standard Prompting}
+\label{app:ps_standard}
+
+The prompt template in direct standard prompting: \textbf{Ps8}
+\begin{lstlisting}[style=promptstyle]
+You are a Python programmer specializing in operations research and optimization. Your expertise in using the Gurobi solver is essential for this task. You are given a specific optimization problem and must use Gurobi to solve it.
+Please develop an efficient Python program that utilizes the Gurobi solver to address the following problem:
+
+{problem}
+
+Please provide the Python code directly, ensuring that Gurobi is the sole solver used in the solution.
+\end{lstlisting}
+
+\subsubsection{Prompt Template of Chain-of-Thought Baseline}
+\label{app:ps_cot}
+
+The prompt template in chain-of-thought baseline: \textbf{Ps9}
+\begin{lstlisting}[style=promptstyle]
+You are a Python programmer specializing in operations research and optimization. Your expertise in using the Gurobi solver is essential for this task. You are given a specific optimization problem and must use Gurobi to solve it.
+You are given a specific problem. You aim to develop an efficient Python program that addresses the given problem.
+Now the origin problem is as follow:
+{problem_description}
+Let's analyse the problem step by step, and then give your Python code.
+Here is a starter code:
+{code_example}
+\end{lstlisting}
+
+\subsubsection{Prompt Template of PHP Baseline}
+\label{app:ps_php}
+
+The prompt template in PHP baseline: \textbf{Ps10}
+\begin{lstlisting}[style=promptstyle]
+You are a Python programmer in the field of operations research and optimization. Your expertise in using the Gurobi solver is essential for this task. You are given a specific optimization problem and must use Gurobi to solve it.
+You are given a specific problem. You aim to develop an efficient Python program that addresses the given problem.
+Now the origin problem is as follow: {problem_description} Let's analyse the problem step by step, and then give your Python code. Here is a starter code: {code_example}
+
+The code looks like as following:
+{history_answer}
+You need to check that the code is correct and can be executed directly.
+\end{lstlisting}
