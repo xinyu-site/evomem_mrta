@@ -7,13 +7,12 @@
 
 \begin{document}
 
-\appendix
-\section{Prompt Templates}
-\label{app:prompt_templates}
 
-This appendix summarizes the prompt templates used in EMERGE. Following the
-style of the reference appendix, each template is denoted by \texttt{Ps} and is
-grouped by its role in the memory-augmented multi-agent optimization pipeline.
+\section{Prompt Templates}
+
+
+This appendix summarizes the prompt templates used in EMERGE. The templates are
+grouped by their role in the memory-augmented multi-agent optimization pipeline.
 Dynamic fields are written in braces, e.g., \texttt{\{problem\_description\}}.
 
 % Required packages in the paper preamble:
@@ -30,164 +29,269 @@ Dynamic fields are written in braces, e.g., \texttt{\{problem\_description\}}.
   xrightmargin=0.5em
 }
 
-\subsection{Task Classification and Memory Retrieval}
+\subsection{Task Classification}
 
 \subsubsection{Prompt Template of MRTA Category Selection}
-\label{app:ps_selector}
+\label{app:prompt_selector}
 
-The prompt template in MRTA category selection: \textbf{Ps1}
+The prompt template in MRTA category selection is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are a classifier that categorizes task descriptions according to the following three rules, and directly outputs one of the 8 corresponding classes (ST_SR_IA, ST_MR_IA, MT_SR_IA, MT_MR_IA, ST_SR_TA, ST_MR_TA, MT_SR_TA, MT_MR_TA):
+You are a classifier for MRTA task descriptions.
+Directly output one of the following eight classes:
+
+  ST_SR_IA, ST_MR_IA, MT_SR_IA, MT_MR_IA,
+  ST_SR_TA, ST_MR_TA, MT_SR_TA, MT_MR_TA
+
 Classification Rules:
-1. ST/MT: Determine whether single robot execute multiple tasks. If yes, output MT; otherwise, output ST.
-2. SR/MR: Determine whether there are any tasks that require multiple robots to collaborate for completion. If yes, output MR; otherwise, output SR.
-3. IA/TA: Determine whether task planning considers timesteps. If yes, output TA; otherwise, output IA.
+1. ST/MT:
+   Determine whether a single robot can execute multiple tasks.
+   If yes, output MT; otherwise, output ST.
+
+2. SR/MR:
+   Determine whether any task requires multiple robots to collaborate.
+   If yes, output MR; otherwise, output SR.
+
+3. IA/TA:
+   Determine whether task planning considers timesteps.
+   If yes, output TA; otherwise, output IA.
+
 Class Explanation (combined in order):
 - First part: ST (Single Task) or MT (Multi-Task)
 - Second part: SR (Single Robot) or MR (Multi-Robot)
 - Third part: IA (Instantaneous Assignment) or TA (Time-Extended Assignment)
-Carefully read the task description, apply the three rules in sequence, and then output only the final class name without any additional text.
+
+Carefully read the task description, apply the three rules in sequence,
+and output only the final class name without any additional text.
 
 Task Description:
 {problem_description}
 \end{lstlisting}
 
-\subsubsection{Prompt Template of Memory Summary Evolution}
-\label{app:ps_evolver}
-
-The prompt template in memory summary evolution: \textbf{Ps2}
-\begin{lstlisting}[style=promptstyle]
-You are an experienced work review expert, proficient in summarization, comparison, and iterative writing. Your core capability is: by comparing old summary and new summary, extracting effective patterns, preserving the essence, and integrating new insights to generate a more mature and more instructive iterative version of the work summary.
-
-You will receive two inputs:
-
-1-{current_summary}
-2-{original_summary}
-
-Your Task: Revise and upgrade the Original Work Summary by integrating the new insights and lessons from the Current Work Problem and Current Work Summary.
-Output Rules:
-1-Output only the final, revised summary text. No explanations.
-2-Preserve the original's core structure, successful conclusions, and its overall tone/style.
-\end{lstlisting}
-
 \subsection{Multi-Agent Solver Prompts}
 
 \subsubsection{Prompt Template of Parser}
-\label{app:ps_parser}
+\label{app:prompt_parser}
 
-The prompt template for the Parser agent \(P_{\mathrm{Par}}\): \textbf{Ps3}
+The prompt template for the Parser agent \(P_{\mathrm{Par}}\) is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are an expert in identifying and extracting key decision variables from the problem description to support accurate modeling.
-As the Parser, your task is to analyze the problem description and extract relevant variables, constraints, and objectives.
-Use your domain expertise to ensure these elements are accurately defined and suitable for formulating a solvable LP or MIP model.
-Specifically, ensure constraints use only <=, >=, or = operators (avoid > or <).
+You are an expert in identifying optimization-relevant information
+from natural-language problem descriptions.
+
+As the Parser, your task is to analyze the problem description and extract:
+  - relevant decision variables,
+  - constraints,
+  - objectives.
+
+Use your domain expertise to ensure that these elements are accurately
+defined and suitable for formulating a solvable LP or MIP model.
+Ensure that constraints use only <=, >=, or = operators.
+Avoid strict inequalities such as > or <.
 
 {example_context}
 
 Review the problem description
 {problem_description}
+
 and the comments from other experts
 {comments_text}
-then provide the extracted variables, constraints, and objectives along with their definitions.
+
+Then provide the extracted variables, constraints, and objectives
+along with their definitions.
 \end{lstlisting}
 
 When retrieved demonstrations are available, \texttt{\{example\_context\}} is
 instantiated by one of the following two templates.
 \begin{lstlisting}[style=promptstyle]
-this is the specific example : {example_str}
+The following retrieved example may guide your work:
+
+{example_str}
 \end{lstlisting}
 
 \begin{lstlisting}[style=promptstyle]
-If the following information describes a successful summary or unsuccessful analysis, you may refer to it for context.: {example_str}
+The following retrieved summary or failure analysis may provide context:
+
+{example_str}
 \end{lstlisting}
 
 The example string used by this stage follows the format below.
 \begin{lstlisting}[style=promptstyle]
-To guide your work, study the following examples carefully. Each example demonstrates the complete thought process from problem description to structured extraction:
+To guide your work, study the following examples carefully.
+Each example demonstrates the process from problem description
+to structured extraction.
+
 ---
 ### EXAMPLE {i} ###
+
 Problem Description:
 {example_problem}
+
 Example Output:
 {example_output}
-
 ---
 ***End of Examples***
 \end{lstlisting}
 
 \subsubsection{Prompt Template of Modeler}
-\label{app:ps_modeler}
+\label{app:prompt_modeler}
 
-The prompt template for the Modeler agent \(P_{\mathrm{Mod}}\): \textbf{Ps4}
+The prompt template for the Modeler agent \(P_{\mathrm{Mod}}\) is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are a modeling expert in Operations Research and Optimization, specializing in Mixed-Integer Programming (MIP). Your task is to construct a mathematical optimization model based on the problem description and insights provided by other reasoning stages. Leverage your expertise to formulate the optimization objectives and constraints, ensuring the model is comprehensive and suitable for solving the given production challenge. Please integrate all inputs and provide a well-defined model that aligns with operational research principles.
+You are a modeling expert in Operations Research and Optimization,
+specializing in Mixed-Integer Programming (MIP).
+
+Your task is to construct a mathematical optimization model based on:
+  - the problem description,
+  - insights provided by other reasoning stages.
+
+Formulate the decision variables, objective, and constraints.
+Ensure that the model is comprehensive, solvable, and aligned with
+standard operational research principles.
 
 Now the origin problem is as follow:
 {problem_description}
+
 And the comments from other reasoning stages are as follow:
 {comments_text}
 
-Give your MIP model of this problem. Additionally, please note that your model needs to be a solvable linear programming model or a mixed-integer programming model. This also means that the expressions of the constraint conditions can only be equal to, greater than or equal to, or less than or equal to (> or < are not allowed to appear and should be replaced to be \geq or \leq).
+Give your MIP model of this problem.
+
+The model must be a solvable LP or MIP formulation.
+All constraints must use only equality, greater-than-or-equal-to,
+or less-than-or-equal-to relations.
+Do not use strict inequalities (> or <); replace them with
+\geq or \leq where appropriate.
 
 Your output format should be a JSON like this:
 {
-    "VARIABLES": "A mathematical description about variables",
-    "CONSTRAINTS": "A mathematical description about constraints",
-    "OBJECTIVE": "A mathematical description about objective"
+  "VARIABLES": "A mathematical description of variables",
+  "CONSTRAINTS": "A mathematical description of constraints",
+  "OBJECTIVE": "A mathematical description of the objective"
 }
 \end{lstlisting}
 
 \subsubsection{Prompt Template of Developer}
-\label{app:ps_developer}
+\label{app:prompt_developer}
 
-The prompt template for the Developer agent \(P_{\mathrm{Dev}}\): \textbf{Ps5}
+The prompt template for the Developer agent \(P_{\mathrm{Dev}}\) is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are a Python programmer specializing in operations research and optimization, with expertise in implementing and solving mathematical problems using Gurobi. Your main responsibility is to write, debug, and optimize code that transforms given optimization formulations into executable solutions using Gurobi. Ensure your implementation aligns with the problem objectives and constraints, and deliver clean, efficient, and well-documented code. While Gurobi is your primary tool, knowledge of related libraries such as NumPy, SciPy, or PuLP can support additional functionality or preprocessing tasks. Your goal is to provide robust, solver-ready code that effectively addresses the optimization problem.
-As the Developer, your core task is to translate the parsed task information and mathematical formulation into executable solver code.
-Crucially, you MUST ensure all constraints are expressed using only the operators <=, >=, or =; the use of strict inequalities (> or <) is prohibited for linear programming formulations.
+You are a Python programmer specializing in operations research
+and optimization, with expertise in Gurobi.
+
+Your responsibility is to write clean and executable solver code
+that transforms an optimization formulation into a working Python program.
+The implementation must align with the problem objective and constraints.
+
+As the Developer, your core task is to translate:
+  - parsed task information,
+  - the mathematical formulation,
+  - the starter code template,
+into executable solver code.
+
+All constraints must use only <=, >=, or =.
+Strict inequalities (> or <) are prohibited in LP/MIP formulations.
 
 {example_str}
 
 Analyze the problem step by step based on the provided description
 {problem_description}
+
 and the comments from other reasoning stages
 {comments_text}.
-Using the starter code template {code_example} write a Python function that strictly follows the given format and defines a solvable linear programming (LP) or mixed-integer programming (MIP) model.
-Include only the necessary import statements and ensure no external test code is provided. Deliver clean, efficient, and well-structured code that aligns with the problem requirements.
+
+Using the starter code template
+{code_example}
+
+write a Python function that strictly follows the given format and
+defines a solvable LP or MIP model.
+
+Include only the necessary import statements.
+Do not include external test code.
+Deliver clean, efficient, and well-structured code.
 \end{lstlisting}
 
 When retrieved code demonstrations are used, \texttt{\{example\_str\}} is
 instantiated as follows.
 \begin{lstlisting}[style=promptstyle]
-To guide your work, study the following examples carefully. Each example demonstrates the complete thought process from problem description to structured extraction:
+To guide your work, study the following examples carefully.
+Each example demonstrates the process from problem description
+to code implementation.
+
 ---
 ### EXAMPLE {i} ###
+
 Problem Description:
 {example_problem}
+
 Example Code Implementation:
 {example_code}
-
 ---
 ***End of Examples***
 \end{lstlisting}
 
-\subsection{Memory Construction and Diagnosis Prompts}
+\subsection{Memory Evolution Prompts}
+\label{app:prompt_memory_evolution}
 
-\subsubsection{Prompt Template of Successful Case Summarization}
-\label{app:ps_success_summary}
+\subsubsection{Prompt Template of Abstract Memory Evolution}
+\label{app:prompt_abs}
 
-The prompt template in successful case summarization: \textbf{Ps6}
+The abstraction prompt \(P_{\mathrm{abs}}\) for updating the abstract memory
+\(m_i^{\star}\) is shown below. It integrates the current episode summary
+\(s_{ij}\) with the previous category-level abstract memory.
 \begin{lstlisting}[style=promptstyle]
-You are an efficient Model Refinement Expert, skilled at condensing complex optimization models into their core essentials.
+You are an experienced work review expert.
+You are proficient in summarization, comparison, and iterative writing.
 
-Review the following problem and model. Briefly summarize the problem description, optimization variables, constraints, objective function, and Precautions (1-3 sentences each).
-this is the original problem: {problem_description}
-this is the model file: {identify_text}
+Your core capability is to compare an old summary and a new summary,
+extract effective patterns, preserve the useful conclusions, and
+integrate new insights into a more mature and instructive work summary.
+
+You will receive two inputs:
+
+1. Current episode summary:
+   {current_summary}
+
+2. Original abstract memory summary:
+   {original_summary}
+
+Your Task:
+Revise and upgrade the Original Abstract Memory Summary by integrating
+the new insights and lessons from the Current Episode Summary.
+
+Output Rules:
+1. Output only the final revised summary text. No explanations.
+2. Preserve reusable category-level modeling knowledge.
+3. Integrate useful new patterns, cautions, or corrective lessons.
+\end{lstlisting}
+
+\subsubsection{Prompt Template of Successful Episode Summarization}
+\label{app:prompt_success_summary}
+
+The prompt template for constructing the successful episode summary \(s_{ij}\)
+is shown below.
+\begin{lstlisting}[style=promptstyle]
+You are an efficient Model Refinement Expert.
+You are skilled at condensing complex optimization models
+into their core essentials.
+
+Review the following problem and model.
+Briefly summarize the problem description, optimization variables,
+constraints, objective function, and precautions.
+Use 1-3 sentences for each item.
+
+Original problem:
+{problem_description}
+
+Model file:
+{identify_text}
 
 Output Constraints:
-One-Sentence Principle: Each item (Variables, Constraints, Objective) must be expressed in exactly one sentence.
-Professional Language: Use general mathematical terminology (e.g., binary variables, linear constraints, etc.) where appropriate, but do not use any mathematical formulas.
-Minimalist Format: Do not include any redundant explanations. Output the concise summary directly using the following structure:
+1. Each item should be concise.
+2. Use general mathematical terminology where appropriate
+   (e.g., binary variables, linear constraints).
+3. Do not use mathematical formulas.
+4. Do not include redundant explanations.
+5. Output the summary directly using the following structure:
+
 [Problem Summary]: [Insert summary here]
 [Optimization Variables]: [Insert summary here]
 [Optimization Constraints]: [Insert summary here]
@@ -195,561 +299,106 @@ Minimalist Format: Do not include any redundant explanations. Output the concise
 [Precautions]: [insert precautions here]
 \end{lstlisting}
 
-\subsubsection{Prompt Template of Failed Case Diagnosis}
-\label{app:ps_failure_diagnosis}
+\subsubsection{Prompt Template of Failed Episode Diagnosis}
+\label{app:prompt_failure_diagnosis}
 
-The prompt template in failed case diagnosis: \textbf{Ps7}
+The prompt template for constructing the failed episode diagnosis \(s_{ij}\)
+is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are an efficient Model Diagnosis Expert, skilled at quickly identifying core logical errors in optimization models.
+You are an efficient Model Diagnosis Expert.
+You are skilled at identifying core logical errors in optimization models.
 
-Please analyze the following original problem and a model known to be incorrect. Your task is to directly and concisely explain why this modeling approach is wrong.
-this is the original problem: {problem_description}
-this is the model file: {identify_text}
+Please analyze the following original problem and a model known to be incorrect.
+Your task is to directly and concisely explain why this modeling approach is wrong.
+
+Original problem:
+{problem_description}
+
+Model file:
+{identify_text}
 
 Output Requirements:
-Focus on the Root Cause: Analyze the fundamental logical error or key assumption bias in the modeling, not surface-level or syntax issues.
-Fixed Structure: Use only the following structure for your output, with no introductory summary.
-Concise Language: Explain each part in 1-2 sentences.
+1. Focus on the root cause:
+   Analyze the fundamental logical error or key assumption bias,
+   not surface-level or syntax issues.
+2. Use only the following structure.
+3. Do not include an introductory summary.
+4. Explain each part in 1-2 sentences.
+
 Output Structure (Strictly Follow):
 [Error Cause Analysis]
 [Core Error]: [State the most fundamental error in 1-2 sentences]
-[Specific Analysis]: [Briefly explain the contradiction between the model logic and the problem requirements]
-[Potential Consequences]: [The typical result of such an error, e.g., meaningless solution, infeasible model, etc.]
+[Specific Analysis]: [Explain the contradiction between the model logic and the problem requirements]
+[Potential Consequences]: [State the typical result, e.g., meaningless solution or infeasible model]
 \end{lstlisting}
 
 \subsection{Baseline Prompt Templates}
 
 \subsubsection{Prompt Template of Direct Standard Prompting}
-\label{app:ps_standard}
+\label{app:prompt_standard}
 
-The prompt template in direct standard prompting: \textbf{Ps8}
+The prompt template in direct standard prompting is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are a Python programmer specializing in operations research and optimization. Your expertise in using the Gurobi solver is essential for this task. You are given a specific optimization problem and must use Gurobi to solve it.
-Please develop an efficient Python program that utilizes the Gurobi solver to address the following problem:
+You are a Python programmer specializing in operations research
+and optimization.
+Your expertise in using the Gurobi solver is essential for this task.
+
+You are given a specific optimization problem.
+Please develop an efficient Python program that uses Gurobi
+to address the following problem:
 
 {problem}
 
-Please provide the Python code directly, ensuring that Gurobi is the sole solver used in the solution.
+Provide the Python code directly.
+Ensure that Gurobi is the sole solver used in the solution.
 \end{lstlisting}
 
 \subsubsection{Prompt Template of Chain-of-Thought Baseline}
-\label{app:ps_cot}
+\label{app:prompt_cot}
 
-The prompt template in chain-of-thought baseline: \textbf{Ps9}
+The prompt template in chain-of-thought baseline is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are a Python programmer specializing in operations research and optimization. Your expertise in using the Gurobi solver is essential for this task. You are given a specific optimization problem and must use Gurobi to solve it.
-You are given a specific problem. You aim to develop an efficient Python program that addresses the given problem.
+You are a Python programmer specializing in operations research
+and optimization.
+Your expertise in using the Gurobi solver is essential for this task.
+
+You are given a specific problem.
+You aim to develop an efficient Python program that addresses the problem.
+
 Now the origin problem is as follow:
 {problem_description}
+
 Let's analyse the problem step by step, and then give your Python code.
+
 Here is a starter code:
 {code_example}
 \end{lstlisting}
 
 \subsubsection{Prompt Template of PHP Baseline}
-\label{app:ps_php}
+\label{app:prompt_php}
 
-The prompt template in PHP baseline: \textbf{Ps10}
+The prompt template in PHP baseline is shown below.
 \begin{lstlisting}[style=promptstyle]
-You are a Python programmer in the field of operations research and optimization. Your expertise in using the Gurobi solver is essential for this task. You are given a specific optimization problem and must use Gurobi to solve it.
-You are given a specific problem. You aim to develop an efficient Python program that addresses the given problem.
-Now the origin problem is as follow: {problem_description} Let's analyse the problem step by step, and then give your Python code. Here is a starter code: {code_example}
+You are a Python programmer in the field of operations research
+and optimization.
+Your expertise in using the Gurobi solver is essential for this task.
+
+You are given a specific problem.
+You aim to develop an efficient Python program that addresses the problem.
+
+Now the origin problem is as follow:
+{problem_description}
+
+Let's analyse the problem step by step, and then give your Python code.
+
+Here is a starter code:
+{code_example}
 
 The code looks like as following:
 {history_answer}
+
 You need to check that the code is correct and can be executed directly.
 \end{lstlisting}
 
-\section{Benchmark and Evaluation Details}
-\label{app:benchmark_evaluation}
-
-The main paper introduces a taxonomy-driven benchmark and an execution-based
-evaluation protocol. This section provides additional details that are useful for
-reproducing the reported experiments and interpreting the error analysis.
-
-\subsection{MRTA Category Definitions}
-\label{app:mrta_category_definitions}
-
-The benchmark follows three binary dimensions from the MRTA taxonomy: robot
-capability, task requirement, and assignment temporality. Their combinations
-produce the eight categories used throughout the experiments.
-
-\begin{table}[h]
-\centering
-\caption{MRTA category definitions used in the benchmark.}
-\label{tab:app_mrta_categories}
-\begin{tabular}{llll}
-\toprule
-Category & Robot capability & Task requirement & Temporality \\
-\midrule
-ST/SR/IA & Single-task robots & Single-robot tasks & Instantaneous \\
-ST/SR/TA & Single-task robots & Single-robot tasks & Time-extended \\
-ST/MR/IA & Single-task robots & Multi-robot tasks & Instantaneous \\
-ST/MR/TA & Single-task robots & Multi-robot tasks & Time-extended \\
-MT/SR/IA & Multi-task robots & Single-robot tasks & Instantaneous \\
-MT/SR/TA & Multi-task robots & Single-robot tasks & Time-extended \\
-MT/MR/IA & Multi-task robots & Multi-robot tasks & Instantaneous \\
-MT/MR/TA & Multi-task robots & Multi-robot tasks & Time-extended \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\noindent\textbf{Single-task (ST) vs. multi-task (MT) robots.}
-In ST settings, each robot is assigned to at most one task in the relevant
-assignment decision. In MT settings, a robot may serve multiple tasks across the
-assignment process, while time-extended cases still enforce the per-time-step
-execution constraints specified by the instance.
-
-\noindent\textbf{Single-robot (SR) vs. multi-robot (MR) tasks.}
-In SR settings, each task requires exactly one robot. In MR settings, at least
-one task requires multiple robots to execute the same task, which introduces
-coalition or synchronization constraints.
-
-\noindent\textbf{Instantaneous assignment (IA) vs. time-extended assignment (TA).}
-IA settings solve a static allocation problem without temporal scheduling. TA
-settings require assignments to satisfy task time windows and per-step robot
-availability constraints.
-
-\subsection{Benchmark Instance Schema}
-\label{app:benchmark_schema}
-
-Each benchmark instance is stored as one problem folder and contains three files:
-a natural-language description, a starter function template, and a JSON test
-sample. The natural-language description provides the task semantics and
-allocation requirements. The starter template fixes the required function name,
-input variables, and output format. The JSON file provides executable test
-inputs and ground-truth outputs used by the evaluator.
-
-\begin{table}[h]
-\centering
-\caption{Fields commonly used by benchmark instances.}
-\label{tab:app_instance_schema}
-\begin{tabular}{ll}
-\toprule
-Field & Meaning \\
-\midrule
-\texttt{RobotPositions} & 2-D coordinates of robots. \\
-\texttt{TaskPositions} & 2-D coordinates of tasks. \\
-\texttt{NumRobots} & Number of robots in the instance. \\
-\texttt{NumTasks} & Number of tasks in the instance. \\
-\texttt{TaskRequirements} & Number of robots required by each task, when applicable. \\
-\texttt{TimeSteps} & Planning horizon length for time-extended settings. \\
-\texttt{EarliestStep} & Earliest feasible execution step for each task. \\
-\texttt{LatestStep} & Latest feasible execution step for each task. \\
-\texttt{output} & Ground-truth allocation structure or optimal objective value. \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The output format depends on the category. Some instantaneous assignment
-settings return explicit robot-task allocation structures, whereas temporal
-optimization settings often return the optimal total Euclidean travel distance.
-In all cases, success requires the generated program to follow the starter
-function signature and return an output that satisfies the category-specific
-constraints.
-
-\subsection{Execution-Based Success Criterion}
-\label{app:success_criterion}
-
-For each benchmark instance, the model produces Python solver code. The code is
-extracted, executed with the instance-specific test sample, and checked by an
-automatic evaluator. A trial is counted as successful only if all of the
-following conditions hold:
-\begin{enumerate}
-    \item the generated Python program can be parsed and executed without syntax
-    or runtime errors;
-    \item the program preserves the required function name and input variables
-    defined in the starter template;
-    \item the returned allocation or objective value matches the ground-truth
-    output within the evaluator tolerance;
-    \item the returned result satisfies all MRTA constraints, including robot
-    capacity, task coverage, multi-robot task requirements, and temporal windows
-    when applicable.
-\end{enumerate}
-
-\subsection{Ablation Settings}
-\label{app:ablation_settings}
-
-The ablation study in the main paper isolates the contribution of each memory
-component. Table~\ref{tab:app_ablation_definitions} summarizes the exact meaning
-of each variant.
-
-\begin{table}[h]
-\centering
-\caption{Definitions of ablation variants.}
-\label{tab:app_ablation_definitions}
-\begin{tabular}{ll}
-\toprule
-Variant & Removed or disabled component \\
-\midrule
-w/o Mem & Disable memory retrieval and memory-conditioned prompting. \\
-w/o Evo & Disable abstract-memory evolution after task execution. \\
-w/o Forget & Disable access-frequency-based memory retention. \\
-w/o Corr & Disable execution-feedback-based correction and diagnosis. \\
-Ours & Use retrieval, abstract evolution, retention, and correction. \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Error-Type Annotation}
-\label{app:error_taxonomy}
-
-The error analysis in the main paper classifies each failed instance according
-to the earliest identifiable failure source. The categories are defined as
-follows.
-
-\begin{table}[h]
-\centering
-\caption{Error categories used in the failure analysis.}
-\label{tab:app_error_taxonomy}
-\begin{tabular}{ll}
-\toprule
-Error type & Definition \\
-\midrule
-Optimization objective & The solver optimizes a quantity inconsistent with the task goal. \\
-Constraint condition & The solver omits, weakens, or misstates a required MRTA constraint. \\
-Syntax & The generated Python code cannot be parsed or executed. \\
-Output format & The solver computes a plausible result but returns it in the wrong format. \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-When multiple errors appear in the same generated solution, the label is
-assigned according to the earliest failure source in the solving pipeline. For
-example, if the code is executable but encodes an incorrect time-window
-constraint, the failure is counted as a constraint-condition error rather than
-an output-format error.
-
-\section{Implementation Details}
-\label{app:implementation_details}
-
-\subsection{Memory Entry Structure}
-\label{app:memory_entry_structure}
-
-Each category-specific memory buffer contains one abstract memory and a bounded
-set of instance memories. The abstract memory stores category-level modeling
-knowledge, while each instance memory stores a concrete task-solving episode:
-\[
-m_{ij}=
-\{\mathbf{h}_{ij},u_{ij},z_{ij},\Pi_{ij},c_{ij},e_{ij},a_{ij},s_{ij}\}.
-\]
-Here, \(u_{ij}\) is the task description, \(\mathbf{h}_{ij}\) is its text
-embedding, \(z_{ij}\) is the parsed task representation, \(\Pi_{ij}\) is the
-optimization formulation, \(c_{ij}\) is the generated solver program,
-\(e_{ij}\) is execution feedback, \(a_{ij}\) is the returned allocation or
-objective value, and \(s_{ij}\) is the access frequency used for retention.
-
-\subsection{Retrieval and Retention}
-\label{app:retrieval_retention}
-
-For a new task, EMERGE first predicts its MRTA category and then retrieves
-within the corresponding category buffer. Text embeddings are computed using
-\texttt{all-MiniLM-L6-v2}. Instance memories are ranked by cosine similarity to
-the new task embedding, and the top-\(K\) entries are retrieved together with
-the category-level abstract memory. Whenever an instance memory is retrieved,
-its access frequency is incremented. If the buffer exceeds its capacity
-\(N_i\), entries with higher access frequency are retained.
-
-\section{Complete Reproduction Protocol}
-\label{app:complete_reproduction}
-
-This section lists the concrete implementation choices needed to reproduce the
-reported experiments. Provider-specific API keys, proxy addresses, and private
-endpoints are intentionally omitted; they should be replaced by any
-OpenAI-compatible LLM endpoint that supports the selected backbone model.
-
-\subsection{Software Environment}
-\label{app:software_environment}
-
-The implementation is written in Python and uses LangChain to call
-OpenAI-compatible chat models. The generated solver programs use Gurobi as the
-optimization backend. A working Gurobi installation and license are therefore
-required.
-
-\begin{table}[h]
-\centering
-\caption{Core software dependencies used for reproduction.}
-\label{tab:app_dependencies}
-\begin{tabular}{ll}
-\toprule
-Dependency & Version or role \\
-\midrule
-Python & 3.10 or newer recommended \\
-\texttt{gurobipy} & 13.0.0 \\
-\texttt{langchain} & 0.1.11 \\
-\texttt{openai} & 2.9.0 \\
-\texttt{sentence-transformers} & 5.1.2 \\
-\texttt{transformers} & 4.57.3 \\
-\texttt{torch} & 2.9.1 \\
-\texttt{numpy} & 1.26.4 \\
-\texttt{scipy} & 1.15.3 \\
-\texttt{scikit-learn} & 1.7.2 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The full dependency list is provided by \texttt{requirements.txt}. To reproduce
-the experiments, install the dependencies and configure the LLM backend before
-running any experiment script:
-\begin{lstlisting}[style=promptstyle]
-pip install -r requirements.txt
-\end{lstlisting}
-
-\subsection{Repository Layout}
-\label{app:repo_layout}
-
-The following files and directories are used in the experimental pipeline.
-\begin{lstlisting}[style=promptstyle]
-agents/                    # Parser, Modeler, and Developer prompts
-agentic_memory_rb/         # memory storage, retrieval, scoring, and evolution
-baseline/                  # Standard, CoT, and PHP baselines
-dataset/                   # eight MRTA categories, 25 instances each
-scripts/ablation/          # ablation experiment helpers
-main.py                    # multi-agent reasoning loop
-run_exp.py                 # single-instance experiment entry point
-run_exp_batch_insist.py    # full benchmark runner
-test_generated_code.py     # execution-based evaluator
-utils.py                   # problem loading and code extraction helpers
-\end{lstlisting}
-
-Each problem folder has the following structure:
-\begin{lstlisting}[style=promptstyle]
-dataset/<MRTA_CATEGORY>/prob_k/
-  description.txt          # natural-language task description
-  code_example.py          # required function signature and starter template
-  sample.json              # executable input and ground-truth output
-\end{lstlisting}
-
-\subsection{Model and Decoding Settings}
-\label{app:model_decoding_settings}
-
-All LLM calls are made with temperature \(0\). The default model name in the
-experiment entry point is \texttt{deepseek-ai/DeepSeek-V3}. The cross-model
-study in the main paper uses the same pipeline while replacing only the LLM
-backbone. The tested backbones are DeepSeek-V3, Claude-3.5, Gemini-2.5-Flash,
-Gemini-2.5-Pro, GPT-4o, DeepSeek-V2.5, and Qwen2.5-VL.
-
-For reproducibility, the LLM endpoint should be configured in the files that
-instantiate \texttt{ChatOpenAI}. The scientific settings are independent of the
-specific endpoint URL or API key, which are environment-specific and are not part
-of the paper artifact.
-
-\subsection{Single-Instance Execution}
-\label{app:single_instance_execution}
-
-A single instance can be evaluated with \texttt{run\_exp.py}. The command below
-runs the full EMERGE configuration on one instance.
-\begin{lstlisting}[style=promptstyle]
-python run_exp.py \
-  --dataset ST_SR_TA \
-  --problem prob_0 \
-  --algorithm coe \
-  --model deepseek-ai/DeepSeek-V3 \
-  --use true \
-  --useab true \
-  --record true \
-  --evolve true \
-  --forget true \
-  --check true \
-  --max_collaborate_nums 5
-\end{lstlisting}
-
-The main command-line arguments are summarized below.
-\begin{table}[h]
-\centering
-\caption{Main \texttt{run\_exp.py} arguments.}
-\label{tab:app_run_exp_args}
-\begin{tabular}{lll}
-\toprule
-Argument & Default & Meaning \\
-\midrule
-\texttt{--algorithm} & \texttt{coe} & Use EMERGE/chain-of-experts or a baseline. \\
-\texttt{--model} & \texttt{deepseek-ai/DeepSeek-V3} & LLM backbone name. \\
-\texttt{--use} & \texttt{true} & Enable instance-level memory retrieval. \\
-\texttt{--useab} & \texttt{true} & Enable abstract memory retrieval. \\
-\texttt{--record} & \texttt{true} & Record new memory after execution. \\
-\texttt{--evolve} & \texttt{true} & Update abstract memory summaries. \\
-\texttt{--forget} & \texttt{true} & Enable score-based memory retention. \\
-\texttt{--check} & \texttt{true} & Use execution feedback for memory update. \\
-\texttt{--max\_collaborate\_nums} & 5 & Maximum reasoning-stage consultation rounds. \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Full Benchmark Execution}
-\label{app:full_benchmark_execution}
-
-The full benchmark contains 200 instances: eight MRTA categories and 25
-instances per category. The categories are evaluated in the order used by
-\texttt{run\_exp\_batch\_insist.py}:
-\begin{lstlisting}[style=promptstyle]
-MT_MR_TA, MT_SR_TA, ST_SR_IA, MT_MR_IA,
-ST_SR_TA, ST_MR_TA, ST_MR_IA, MT_SR_IA
-\end{lstlisting}
-
-The full benchmark runner can be launched as follows:
-\begin{lstlisting}[style=promptstyle]
-python run_exp_batch_insist.py
-\end{lstlisting}
-
-The runner sets \texttt{num\_problems\_per\_dataset=25} and
-\texttt{random\_order=False}. It requeues a task if the experiment subprocess
-fails or times out; this retry behavior is used to handle infrastructure-level
-failures. The reported success rate is still determined only by the evaluator
-result for each benchmark instance.
-
-\subsection{Baseline Execution}
-\label{app:baseline_execution}
-
-The same \texttt{run\_exp.py} entry point is used for the baselines reported in
-the paper by changing \texttt{--algorithm}. The relevant names are:
-\begin{lstlisting}[style=promptstyle]
-standard
-chain_of_thought  # alias: cot
-php
-\end{lstlisting}
-
-For example, the standard baseline can be run as follows:
-\begin{lstlisting}[style=promptstyle]
-python run_exp.py \
-  --dataset ST_SR_TA \
-  --problem prob_0 \
-  --algorithm standard \
-  --model deepseek-ai/DeepSeek-V3
-\end{lstlisting}
-
-\subsection{Ablation Execution}
-\label{app:ablation_execution}
-
-Ablation scripts are provided under \texttt{scripts/ablation/}. They patch the
-batch runner in a temporary copy and execute the selected configuration. The
-helper scripts in the repository currently set \texttt{num\_problems=10} per
-category for quick ablation runs; setting \texttt{num\_problems=25} reproduces
-the full 200-instance ablation setting.
-
-\begin{lstlisting}[style=promptstyle]
-python scripts/ablation/run_no_memory.py
-python scripts/ablation/run_no_evolve.py
-python scripts/ablation/run_no_forget.py
-python scripts/ablation/run_no_check.py
-\end{lstlisting}
-
-The exact flags for each ablation are:
-\begin{table}[h]
-\centering
-\caption{Ablation flags used by the experiment scripts.}
-\label{tab:app_ablation_flags}
-\begin{tabular}{lllllll}
-\toprule
-Variant & use & useab & record & evolve & forget & check \\
-\midrule
-w/o Mem & false & false & false & false & false & false \\
-w/o Evo & true & true & true & false & true & true \\
-w/o Forget & true & true & true & true & false & true \\
-w/o Corr & true & true & true & true & true & false \\
-Ours & true & true & true & true & true & true \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Memory Hyperparameters}
-\label{app:memory_hyperparameters}
-
-The memory system is initialized with the sentence-transformer encoder
-\texttt{all-MiniLM-L6-v2}. The following settings are used in
-\texttt{run\_exp.py}.
-
-\begin{table}[h]
-\centering
-\caption{Memory-related hyperparameters.}
-\label{tab:app_memory_hyperparams}
-\begin{tabular}{lll}
-\toprule
-Parameter & Value & Description \\
-\midrule
-Specific-memory retrieval \(K\) & 1 & Top similar instance memory in same category. \\
-Specific-memory tolerance & 0 & Retrieve only from the routed category. \\
-Abstract-memory target number & 2 & Number of abstract memories retrieved. \\
-Abstract-memory tolerance & 2 & Category-distance tolerance for abstract retrieval. \\
-Abstract memory per category & 1 & Initial abstract-memory count per category. \\
-Memory score increment & 2 & Score added when a new accepted note is stored. \\
-Specific-memory retention size & 5 & Maximum retained specific memories per category. \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-During the main experiments, the dataset name is used as the task category when
-running \texttt{run\_exp.py}. The category-selection prompt is included in the
-appendix because it is implemented in the codebase and can be used when category
-labels are unavailable, but the benchmark experiments route each instance by its
-known dataset category.
-
-\subsection{Multi-Agent Reasoning Procedure}
-\label{app:agent_loop_details}
-
-For EMERGE, the multi-agent reasoning process contains three specialized stages:
-Parser, Modeler, and Developer. The system runs up to five consultation rounds,
-and the generated answer is post-processed by extracting fenced Python code
-blocks. If no code block is found, the raw answer is used as code. A small
-deterministic post-processing rule replaces \texttt{inrange} with
-\texttt{in range} before execution.
-
-\subsection{Automatic Evaluator}
-\label{app:automatic_evaluator}
-
-The evaluator imports the generated file as \texttt{generated\_code.py}, reloads
-it, and calls the function whose name matches the problem folder, e.g.,
-\texttt{prob\_0}. If the file cannot be imported or the function cannot be
-loaded, the result is \texttt{COMPILE\_ERROR}. If the function raises an
-exception on any test sample, the result is \texttt{RUNTIME\_ERROR}. Otherwise,
-the returned output is compared with the ground truth in \texttt{sample.json}.
-
-For scalar numeric outputs, the evaluator accepts the result if
-\[
-|\hat{y}-y| < 0.1.
-\]
-For non-scalar or structured outputs, exact equality is required. A problem is
-counted as accepted only if all test samples pass. The result labels are:
-\texttt{ACCEPT}, \texttt{WRONG\_ANSWER}, \texttt{RUNTIME\_ERROR}, and
-\texttt{COMPILE\_ERROR}.
-
-\subsection{Generated Artifacts and Logs}
-\label{app:generated_artifacts}
-
-Each run creates a folder under \texttt{log/} with a timestamped name. The main
-artifacts are:
-\begin{lstlisting}[style=promptstyle]
-<problem>_original_answer.txt   # raw LLM output
-<problem>_generated_code.py     # extracted executable code
-<problem>_analysis.txt          # reasoning-stage trace used for memory
-<problem>_using_memory.txt      # retrieved memory ids and memory levels
-<problem>_test_log.txt          # evaluator output and pass/fail status
-<problem>_summary.txt           # success summary or failure diagnosis
-<problem>_renew_summary.txt     # evolved abstract memory summary
-\end{lstlisting}
-
-Persistent memories are stored under \texttt{agentic\_memory\_rb/memory/} or the
-configured memory directory. For reproducible comparisons, the same initial
-memory state should be used across methods or ablations.
-
-\subsection{Reproduction Checklist}
-\label{app:reproduction_checklist}
-
-To reproduce the reported results, use the following checklist.
-\begin{enumerate}
-    \item Install dependencies from \texttt{requirements.txt} and verify the
-    Gurobi license.
-    \item Configure the OpenAI-compatible LLM endpoint and set temperature to
-    \(0\).
-    \item Ensure all eight dataset folders contain 25 instances each.
-    \item Use \texttt{run\_exp.py} for single-instance runs and
-    \texttt{run\_exp\_batch\_insist.py} for the full benchmark.
-    \item Use the same memory initialization and memory flags for all methods
-    being compared.
-    \item Compute success rates from evaluator labels, counting only
-    \texttt{ACCEPT} as successful.
-    \item For error analysis, annotate failed instances by the earliest failure
-    source using the taxonomy in Table~\ref{tab:app_error_taxonomy}.
-\end{enumerate}
 
 \end{document}
