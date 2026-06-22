@@ -1,0 +1,17 @@
+# Local paper writing and plotting workspace
+RAL_Memory/
+paper_plot/
+figures/
+
+# Generated paper/plot artifacts
+*.aux
+*.log
+*.synctex.gz
+*.pdf
+*.png
+
+# Local paper/plot helper files kept outside the repository
+prompt_appendix.tex
+PLOT.py
+plot_category_venn.py
+venn*.py
