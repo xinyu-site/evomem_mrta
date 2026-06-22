@@ -1,8 +1,6 @@
 # MRTA Benchmark Dataset
 
-This repository provides a taxonomy-driven benchmark for multi-robot task allocation (MRTA). The dataset is organized by three MRTA dimensions: robot capability, task requirement, and assignment temporality. It contains 200 executable code-generation instances across eight canonical MRTA categories.
-
-The same dataset guide is also available at `dataset/README.md`, so it is shown automatically when opening the `dataset/` directory on GitHub.
+This directory contains a taxonomy-driven benchmark for multi-robot task allocation (MRTA). The dataset is organized by three MRTA dimensions: robot capability, task requirement, and assignment temporality. It contains 200 executable code-generation instances across eight canonical MRTA categories.
 
 ## Dataset Overview
 
@@ -72,7 +70,7 @@ The output is stored as a list in `sample.json`. Depending on the category, it m
 
 ## Representative Example
 
-`dataset/MT_MR_TA/prob_0` is a compact representative example because it combines multi-task robot capability, multi-robot task requirements, and temporal assignment constraints.
+`MT_MR_TA/prob_0` is a compact representative example because it combines multi-task robot capability, multi-robot task requirements, and temporal assignment constraints.
 
 ```json
 [
