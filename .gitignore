@@ -19,3 +19,6 @@ venn*.py
 # Local root-level notes and draft documentation
 /agent_implementation_summary.md
 /representative_dataset_instance.md
+
+# Local scratch workspace
+TEMP/
